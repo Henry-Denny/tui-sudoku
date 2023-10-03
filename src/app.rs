@@ -10,7 +10,8 @@ pub struct App {
     /// Is the application running?
     pub running: bool,
     /// Sudoku grid state.
-    pub grid: SudokuGrid,
+    grid: SudokuGrid,
+    /// The currently selected grid square
     pub selected: GridPos,
 }
 
@@ -62,17 +63,17 @@ impl App {
         }
     }
 
-    /*
-    pub fn increment_counter(&mut self) {
-        if let Some(res) = self.counter.checked_add(1) {
-            self.counter = res;
-        }
+    pub fn set_cell(&mut self, num: u32) {
+        self.grid.set_cell(self.selected, num);
     }
 
-    pub fn decrement_counter(&mut self) {
-        if let Some(res) = self.counter.checked_sub(1) {
-            self.counter = res;
-        }
+    pub fn clear_cell(&mut self) {
+        self.grid.clear_cell(self.selected);
     }
-    */
+
+    pub fn reset_grid(&mut self) {
+        self.grid.clear_grid();
+    }
+
+
 }

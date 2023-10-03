@@ -14,7 +14,7 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
                 app.quit();
             }
         }
-        // Counter handlers
+        // Selection movement
         KeyCode::Up => {
             app.move_up();
         }
@@ -26,6 +26,18 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         }
         KeyCode::Right => {
             app.move_right();
+        }
+        // Grid operations
+        KeyCode::Backspace | KeyCode::BackTab => {
+            app.clear_cell();
+        }
+        KeyCode::Char('r') => {
+            app.reset_grid();
+        }
+        KeyCode::Char(ch) => {
+            if let Some(num) = ch.to_digit(10) {
+                app.set_cell(num);
+            }
         }
         // Other handlers you could add here.
         _ => {}
