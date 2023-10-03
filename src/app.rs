@@ -1,22 +1,25 @@
 use std::error;
 
+use crate::grid::{SudokuGrid, GridPos, GRID_SIZE};
+
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 /// Application.
-#[derive(Debug)]
 pub struct App {
     /// Is the application running?
     pub running: bool,
-    /// counter
-    pub counter: u8,
+    /// Sudoku grid state.
+    pub grid: SudokuGrid,
+    pub selected: GridPos,
 }
 
 impl Default for App {
     fn default() -> Self {
         Self {
             running: true,
-            counter: 0,
+            grid: SudokuGrid::new(),
+            selected: GridPos { row: 0, col: 0 }
         }
     }
 }
@@ -35,6 +38,31 @@ impl App {
         self.running = false;
     }
 
+    pub fn move_up(&mut self) {
+        if self.selected.row > 0 {
+            self.selected.row -= 1;
+        }
+    }
+
+    pub fn move_down(&mut self) {
+        if self.selected.row < GRID_SIZE - 1 {
+            self.selected.row += 1;
+        }
+    }
+    
+    pub fn move_left(&mut self) {
+        if self.selected.col > 0 {
+            self.selected.col -= 1;
+        }
+    }
+
+    pub fn move_right(&mut self) {
+        if self.selected.col < GRID_SIZE - 1 {
+            self.selected.col += 1;
+        }
+    }
+
+    /*
     pub fn increment_counter(&mut self) {
         if let Some(res) = self.counter.checked_add(1) {
             self.counter = res;
@@ -46,4 +74,5 @@ impl App {
             self.counter = res;
         }
     }
+    */
 }

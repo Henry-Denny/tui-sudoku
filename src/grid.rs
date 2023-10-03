@@ -1,8 +1,14 @@
-const GRID_SIZE: usize = 9;
+pub const GRID_SIZE: usize = 9;
 const SQUARE_DENSITY: usize = 3;
 const SQUARE_SIZE: usize = GRID_SIZE / SQUARE_DENSITY;
 
 pub type CellVal = Option<u32>;
+
+#[derive(Clone, Copy)]
+pub struct GridPos {
+    pub row: usize,
+    pub col: usize,
+}
 
 pub struct SudokuGrid {
     grid: [[CellVal; GRID_SIZE]; GRID_SIZE],
@@ -18,14 +24,14 @@ impl SudokuGrid {
     }
 
     /// Set the number inside a given cell.
-    pub fn set_cell(&mut self, row: usize, col: usize, num: u32) {
-        self.grid[row][col] = Some(num);
+    pub fn set_cell(&mut self, cell: GridPos, num: u32) {
+        self.grid[cell.row][cell.col] = Some(num);
         self.empty_cells -= 1;
     }
 
     /// Remove the number inside a given cell.
-    pub fn clear_cell(&mut self, row: usize, col: usize) {
-        self.grid[row][col] = None;
+    pub fn clear_cell(&mut self, cell: GridPos) {
+        self.grid[cell.row][cell.col] = None;
         self.empty_cells += 1;
     }
 
@@ -40,8 +46,8 @@ impl SudokuGrid {
     }
 
     /// Get the contents of a given cell.
-    pub fn get_cell(self: &Self, row: usize, col: usize) -> CellVal {
-        self.grid[row][col]
+    pub fn get_cell(self: &Self, cell: GridPos) -> CellVal {
+        self.grid[cell.row][cell.col]
     }
 
     /// Given the current state, solve the grid.
@@ -62,7 +68,7 @@ impl SudokuGrid {
     pub fn contains_conflicts(self: &Self) -> bool {
         for row in 0..GRID_SIZE {
             for col in 0..GRID_SIZE {
-                if self.is_cell_conflicting(row, col) {
+                if self.is_cell_conflicting(GridPos { row, col }) {
                     return true;
                 }
             }
@@ -71,13 +77,13 @@ impl SudokuGrid {
     }
 
     /// Checks whether a certain cell clashes with another.
-    pub fn is_cell_conflicting(self: &Self, row: usize, col: usize) -> bool {
-        match self.get_cell(row, col) {
+    pub fn is_cell_conflicting(self: &Self, cell: GridPos) -> bool {
+        match self.get_cell(cell) {
             None => false,
             Some(num) => {
-                self.is_conflicting_row(num, row) || 
-                self.is_conflicting_col(num, col) || 
-                self.is_conflicting_square(num, row, col)
+                self.is_conflicting_row(num, cell.row) || 
+                self.is_conflicting_col(num, cell.col) || 
+                self.is_conflicting_square(num, cell.row, cell.col)
             }
         }
     }
@@ -85,7 +91,7 @@ impl SudokuGrid {
     fn is_conflicting_row(self: &Self, num: u32, row: usize) -> bool {
         let mut count = 0;
         for col in 0..GRID_SIZE {
-            if let Some(member) = self.get_cell(row, col) {
+            if let Some(member) = self.get_cell(GridPos { row, col }) {
                 if num == member {
                     count += 1;
                     if count >= 2 {
@@ -100,7 +106,7 @@ impl SudokuGrid {
     fn is_conflicting_col(self: &Self, num: u32, col: usize) -> bool {
         let mut count = 0;
         for row in 0..GRID_SIZE {
-            if let Some(member) = self.get_cell(row, col) {
+            if let Some(member) = self.get_cell(GridPos { row, col }) {
                 if num == member {
                     count += 1;
                     if count >= 2 {
@@ -118,7 +124,12 @@ impl SudokuGrid {
         let mut count = 0;
         for row_off in 0..(SQUARE_SIZE-1) {
             for col_off in 0..(SQUARE_SIZE-1) {
-                if let Some(member) = self.get_cell(start_row + row_off, start_col + col_off) {
+                if let Some(member) = self.get_cell(
+                    GridPos {
+                        row: start_row + row_off,
+                        col: start_col + col_off
+                    })
+                {
                     if num == member {
                         count += 1;
                         if count >= 2 {
